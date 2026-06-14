@@ -7,7 +7,6 @@ const footerLinks = {
   ],
   Account: [
     { label: 'Sign In', to: '/login' },
-    { label: 'Get Started', to: '/dashboard' },
   ],
 };
 

@@ -50,9 +50,6 @@ export default function Navbar() {
             <Link to="/login" className="btn-outline text-xs px-4 py-2">
               Sign In
             </Link>
-            <Link to="/dashboard" className="btn-primary text-xs px-4 py-2">
-              Get Started
-            </Link>
           </div>
 
           {/* Mobile Hamburger */}
@@ -102,13 +99,6 @@ export default function Navbar() {
               className="btn-outline text-xs justify-center"
             >
               Sign In
-            </Link>
-            <Link
-              to="/dashboard"
-              onClick={() => setMenuOpen(false)}
-              className="btn-primary text-xs justify-center"
-            >
-              Get Started
             </Link>
           </div>
         </div>

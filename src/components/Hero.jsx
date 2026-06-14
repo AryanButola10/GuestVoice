@@ -8,7 +8,7 @@ export default function Hero() {
 
           {/* Label */}
           <div className="flex items-center gap-2 mb-5">
-            <span className="section-label">AI-Powered Review Intelligence</span>
+            <span className="section-label">Intelligent Review System</span>
             <span className="h-px flex-1 max-w-[60px] bg-green-300 rounded" />
           </div>
 
@@ -36,22 +36,6 @@ export default function Hero() {
             <Link to="/about" id="hero-cta-secondary" className="btn-outline">
               Learn More
             </Link>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="mt-12 pt-8 border-t border-slate-200 flex flex-wrap items-center gap-8">
-            {[
-              { text: 'Sentiment Classification' },
-              { text: 'Theme Detection' },
-              { text: 'Response Suggestions' },
-            ].map((item) => (
-              <div key={item.text} className="flex items-center gap-2 text-slate-500 text-sm">
-                <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{item.text}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>

@@ -32,7 +32,7 @@ export default function Dashboard() {
               </h2>
               <div className="w-full h-48 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center">
                 <p className="text-slate-400 text-sm text-center px-6">
-                  Review input panel — coming in Week 7 (AI Integration)
+                  Input panel
                 </p>
               </div>
               <div className="mt-4 flex gap-3">

@@ -132,17 +132,17 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {[
                 {
-                  step: '01',
+                  step: '1',
                   title: 'Paste Reviews',
                   desc: 'Copy and paste one or multiple guest reviews into the analysis panel.',
                 },
                 {
-                  step: '02',
+                  step: '2',
                   title: 'AI Analysis',
                   desc: 'GuestVoice sends the reviews to the Gemini AI model for structured processing.',
                 },
                 {
-                  step: '03',
+                  step: '3',
                   title: 'Get Insights',
                   desc: 'Receive sentiment, theme classification, and a suggested management response instantly.',
                 },
