@@ -15,20 +15,20 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-950 border-t border-slate-800 mt-auto">
+    <footer className="bg-slate-50 border-t border-slate-200 mt-auto">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-10">
 
           {/* Brand column */}
           <div className="sm:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-md bg-green-700 flex items-center justify-center flex-shrink-0">
                 <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3-3-3z" />
                 </svg>
               </div>
-              <span className="text-white font-semibold text-sm">
-                Guest<span className="text-green-500">Voice</span>
+              <span className="text-slate-900 font-bold text-sm">
+                Guest<span className="text-green-700">Voice</span>
               </span>
             </Link>
             <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
@@ -39,7 +39,7 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([group, links]) => (
             <div key={group}>
-              <h4 className="text-slate-300 font-semibold text-xs tracking-wider uppercase mb-4">
+              <h4 className="text-slate-700 font-semibold text-xs tracking-wider uppercase mb-4">
                 {group}
               </h4>
               <ul className="space-y-2.5">
@@ -47,7 +47,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
+                      className="text-slate-500 hover:text-green-700 text-sm transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -59,11 +59,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-slate-600 text-xs">
+        <div className="border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-slate-400 text-xs">
             &copy; {year} GuestVoice. All rights reserved.
           </p>
-          <p className="text-slate-700 text-xs">
+          <p className="text-slate-400 text-xs">
             Built for Trishul Eco-Homestays Network, Uttarakhand
           </p>
         </div>

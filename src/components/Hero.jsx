@@ -2,39 +2,27 @@ import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-slate-950">
-      {/* Subtle background grid */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, #64748b 1px, transparent 1px), linear-gradient(to bottom, #64748b 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-        }}
-      />
-
-      {/* Soft radial glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-green-600/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+    <section className="bg-slate-50 border-b border-slate-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
         <div className="max-w-3xl">
+
           {/* Label */}
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2 mb-5">
             <span className="section-label">AI-Powered Review Intelligence</span>
-            <span className="h-px flex-1 max-w-[60px] bg-green-700/60 rounded" />
+            <span className="h-px flex-1 max-w-[60px] bg-green-300 rounded" />
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
             Turn Guest Feedback Into{' '}
-            <span className="text-green-400">Actionable Insights</span>
+            <span className="text-green-700">Actionable Insights</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-2xl">
-            GuestVoice helps homestay operators analyze customer reviews in seconds —
+          <p className="text-slate-500 text-lg leading-relaxed mb-8 max-w-2xl">
+            GuestVoice helps homestay operators analyse customer reviews in seconds —
             classifying sentiment, detecting themes, and generating professional
-            responses — so you can focus on delivering great experiences.
+            responses so you can focus on delivering great experiences.
           </p>
 
           {/* CTAs */}
@@ -51,14 +39,16 @@ export default function Hero() {
           </div>
 
           {/* Trust indicators */}
-          <div className="mt-12 flex flex-wrap items-center gap-6">
+          <div className="mt-12 pt-8 border-t border-slate-200 flex flex-wrap items-center gap-8">
             {[
-              { icon: '✦', text: 'Sentiment Classification' },
-              { icon: '✦', text: 'Theme Detection' },
-              { icon: '✦', text: 'Response Suggestions' },
+              { text: 'Sentiment Classification' },
+              { text: 'Theme Detection' },
+              { text: 'Response Suggestions' },
             ].map((item) => (
               <div key={item.text} className="flex items-center gap-2 text-slate-500 text-sm">
-                <span className="text-green-600 text-xs">{item.icon}</span>
+                <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
                 <span>{item.text}</span>
               </div>
             ))}
