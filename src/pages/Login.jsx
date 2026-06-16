@@ -38,7 +38,7 @@ export default function Login() {
                 </label>
                 <div className="w-full h-10 bg-slate-50 border border-slate-300 rounded-lg flex items-center px-3">
                   <span className="text-slate-400 text-sm">
-                    Email field — coming in Week 6 (Authentication)
+                    Email field
                   </span>
                 </div>
               </div>
@@ -52,7 +52,7 @@ export default function Login() {
                 </label>
                 <div className="w-full h-10 bg-slate-50 border border-slate-300 rounded-lg flex items-center px-3">
                   <span className="text-slate-400 text-sm">
-                    Password field — coming in Week 6 (Authentication)
+                    Password field
                   </span>
                 </div>
               </div>
@@ -65,10 +65,6 @@ export default function Login() {
                 Sign In
               </button>
             </div>
-
-            <p className="text-center text-slate-400 text-xs mt-6">
-              Authentication will be implemented in Week 6 (JWT-based login)
-            </p>
           </div>
         </div>
       </main>
