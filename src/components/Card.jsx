@@ -1,39 +1,30 @@
 /**
- * Card — reusable feature/info card component
+ * Card Component
  *
- * Props:
- *  - icon        {JSX.Element}  SVG icon element
- *  - title       {string}       Card heading
- *  - description {string}       Supporting text
- *  - tag         {string}       Optional badge label (e.g. "AI-Powered")
+ * @param {string} icon - Emoji or icon character displayed at the top.
+ * @param {string} tag - Small label/badge shown above the title.
+ * @param {string} title - Card heading text.
+ * @param {string} description - Card body description text.
  */
-export default function Card({ icon, title, description, tag }) {
+export default function Card({ icon, tag, title, description }) {
   return (
-    <div className="card-base group flex flex-col gap-4">
-
-      {/* Icon */}
-      <div className="w-10 h-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-700 flex-shrink-0 group-hover:bg-green-100 transition-all duration-200">
-        {icon}
-      </div>
-
-      <div className="flex-1">
-        {/* Tag */}
-        {tag && (
-          <span className="inline-block text-[10px] font-semibold tracking-wider uppercase text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full mb-2">
-            {tag}
-          </span>
-        )}
-
-        {/* Title */}
-        <h3 className="text-slate-900 font-semibold text-base mb-2 leading-snug">
+    <div className="card-base flex flex-col gap-3">
+      {icon && (
+        <span className="text-2xl" aria-hidden="true">{icon}</span>
+      )}
+      {tag && (
+        <span className="section-label">{tag}</span>
+      )}
+      {title && (
+        <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-base leading-snug">
           {title}
         </h3>
-
-        {/* Description */}
-        <p className="text-slate-500 text-sm leading-relaxed">
+      )}
+      {description && (
+        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
           {description}
         </p>
-      </div>
+      )}
     </div>
   );
 }

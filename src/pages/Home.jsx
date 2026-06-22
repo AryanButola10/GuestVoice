@@ -88,16 +88,16 @@ export default function Home() {
         <Hero />
 
         {/* Features section */}
-        <section id="features" className="py-20 bg-white">
+        <section id="features" className="py-20 bg-white dark:bg-slate-950">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Section header */}
             <div className="mb-12">
               <span className="section-label">Platform Features</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-2 mb-3 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 mb-3 tracking-tight">
                 Everything you need to understand your guests
               </h2>
-              <p className="text-slate-500 text-sm max-w-xl leading-relaxed">
+              <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xl leading-relaxed">
                 Designed specifically for homestay and hospitality operators who need fast,
                 reliable feedback intelligence without a dedicated analytics team.
               </p>
@@ -120,11 +120,11 @@ export default function Home() {
         </section>
 
         {/* How it works */}
-        <section className="py-20 bg-slate-50 border-y border-slate-200">
+        <section className="py-20 bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-12">
               <span className="section-label">Workflow</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-2 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-2 tracking-tight">
                 How GuestVoice works
               </h2>
             </div>
@@ -152,8 +152,8 @@ export default function Home() {
                     {item.step}
                   </div>
                   <div>
-                    <h3 className="text-slate-900 font-semibold text-sm mb-1">{item.title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
+                    <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-sm mb-1">{item.title}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
