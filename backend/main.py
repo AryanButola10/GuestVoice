@@ -5,11 +5,13 @@ API docs: http://localhost:8000/docs
 """
 
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 
+from database import connect_to_mongo, close_mongo_connection
 from routes.reviews import router as reviews_router
 
 # ---------------------------------------------------------------------------
@@ -18,13 +20,25 @@ from routes.reviews import router as reviews_router
 load_dotenv()
 PORT = int(os.getenv("PORT", 8000))
 
+
+# ---------------------------------------------------------------------------
+# Lifespan — connect to MongoDB on startup, disconnect on shutdown
+# ---------------------------------------------------------------------------
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await connect_to_mongo()   # startup
+    yield
+    await close_mongo_connection()  # shutdown
+
+
 # ---------------------------------------------------------------------------
 # Initialise FastAPI app
 # ---------------------------------------------------------------------------
 app = FastAPI(
     title="GuestVoice API",
     description="REST API for AI-powered guest review analysis for homestay businesses.",
-    version="1.0.0",
+    version="2.0.0",
+    lifespan=lifespan,
 )
 
 # ---------------------------------------------------------------------------
@@ -52,9 +66,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Root health-check endpoint
 # ---------------------------------------------------------------------------
 @app.get("/", tags=["Health"])
-def root():
+async def root():
     """Health check — confirms the API is running."""
-    return {"status": "ok", "message": "GuestVoice API is running 🚀"}
+    return {"status": "ok", "message": "GuestVoice API is running 🚀 (MongoDB connected)"}
 
 # ---------------------------------------------------------------------------
 # Register routers
