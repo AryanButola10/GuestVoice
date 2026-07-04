@@ -21,7 +21,6 @@ async def connect_to_mongo():
     if not mongo_uri:
         raise RuntimeError("MONGO_URI is not set in .env file!")
     _client = AsyncIOMotorClient(mongo_uri)
-    # get_default_database() reads the database name from the URI (/guestvoice)
     _db = _client.get_default_database()
     print(f"✅ Connected to MongoDB: {_db.name}")
     await seed_initial_data()
@@ -98,6 +97,6 @@ async def seed_initial_data():
     count = await collection.count_documents({})
     if count == 0:
         await collection.insert_many(SAMPLE_REVIEWS)
-        print(f"🌱 Seeded {len(SAMPLE_REVIEWS)} sample reviews into MongoDB.")
+        print(f" Seeded {len(SAMPLE_REVIEWS)} sample reviews into MongoDB.")
     else:
-        print(f"📦 Found {count} existing reviews in MongoDB — skipping seed.")
+        print(f" Found {count} existing reviews in MongoDB — skipping seed.")
