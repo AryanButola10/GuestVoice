@@ -3,3 +3,10 @@ uvicorn[standard]
 python-dotenv
 motor
 pymongo
+passlib[bcrypt]
+python-jose[cryptography]
+slowapi
+authlib
+httpx
+email-validator
+itsdangerous
