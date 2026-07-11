@@ -39,6 +39,11 @@ def get_reviews_collection():
     return _db["reviews"]
 
 
+def get_users_collection():
+    """Return the users collection. Used by auth route handlers."""
+    return _db["users"]
+
+
 # ---------------------------------------------------------------------------
 # Seed 5 sample reviews if the collection is empty (first run only)
 # ---------------------------------------------------------------------------
