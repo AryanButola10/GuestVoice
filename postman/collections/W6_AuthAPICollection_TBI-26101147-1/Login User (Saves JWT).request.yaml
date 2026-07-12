@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{base_url}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "aryan.postman@gmail.com",
+      "password": "securepass123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const res = pm.response.json();
+      if (res.access_token) {
+          pm.collectionVariables.set('token', res.access_token);
+          console.log('Token saved!');
+      }
+    language: text/javascript
+order: 2000

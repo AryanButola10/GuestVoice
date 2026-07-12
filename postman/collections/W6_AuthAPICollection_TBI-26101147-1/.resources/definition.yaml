@@ -1,0 +1,6 @@
+$kind: collection
+name: W6_AuthAPICollection_TBI-26101147
+description: Week 6 Auth API Collection — GuestVoice | Aryan Butola | TBI-26101147
+variables:
+  base_url: http://localhost:8000/api
+  token: ""

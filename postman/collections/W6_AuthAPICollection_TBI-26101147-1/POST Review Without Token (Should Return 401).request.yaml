@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{base_url}}/reviews"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "guest_name": "No Auth",
+      "property": "Test",
+      "rating": 3,
+      "review_text": "This request has no token so it should return 401"
+    }
+order: 6000
