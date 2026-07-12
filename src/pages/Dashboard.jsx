@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Loader } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const API_BASE = 'http://localhost:8000/api';
 
 export default function Dashboard() {
+  const { token, user, logout } = useAuth();
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(true);
@@ -54,7 +58,7 @@ export default function Dashboard() {
   }
 
   // -----------------------------------------------------------------------
-  // Submit a new review via POST /api/reviews
+  // Submit a new review via POST /api/reviews (requires JWT)
   // -----------------------------------------------------------------------
   async function handleSubmit(e) {
     e.preventDefault();
@@ -66,9 +70,18 @@ export default function Dashboard() {
     try {
       const res = await fetch(`${API_BASE}/reviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({ ...form, rating: Number(form.rating) }),
       });
+      if (res.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
+        navigate('/login');
+        return;
+      }
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.detail || 'Submission failed');
@@ -85,11 +98,20 @@ export default function Dashboard() {
   }
 
   // -----------------------------------------------------------------------
-  // Delete a review via DELETE /api/reviews/:id
+  // Delete a review via DELETE /api/reviews/:id (requires JWT)
   // -----------------------------------------------------------------------
   async function handleDelete(id) {
     try {
-      const res = await fetch(`${API_BASE}/reviews/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/reviews/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
+        navigate('/login');
+        return;
+      }
       if (!res.ok) throw new Error('Delete failed');
       toast.success('Review deleted.');
       setReviews((prev) => prev.filter((r) => r.id !== id));
@@ -116,15 +138,31 @@ export default function Dashboard() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="mb-10">
-            <span className="section-label">Review Analysis</span>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mt-3 mb-3 tracking-tight">
-              Dashboard
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-xl">
-              Submit guest reviews to receive AI-generated sentiment classification,
-              theme detection, and suggested management responses.
-            </p>
+          <div className="mb-10 flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <span className="section-label">Review Analysis</span>
+              <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mt-3 mb-3 tracking-tight">
+                Dashboard
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-xl">
+                Submit guest reviews to receive AI-generated sentiment classification,
+                theme detection, and suggested management responses.
+              </p>
+            </div>
+            {/* User info + Logout */}
+            <div className="flex items-center gap-3 mt-2">
+              <div className="text-right">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{user?.name}</p>
+                <p className="text-xs text-slate-400">{user?.email}</p>
+              </div>
+              <button
+                id="logout-btn"
+                onClick={() => { logout(); navigate('/login'); }}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           {/* Stats row */}

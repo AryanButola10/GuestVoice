@@ -1,14 +1,108 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+
+const API_BASE = 'http://localhost:8000/api';
 
 /**
- * Auth page — combines Sign In and Sign Up in a single tab-based card.
- * Tabs animate smoothly on switch. Both forms are placeholder (no backend yet).
+ * Auth page — Sign In / Sign Up tabs, plus Google OAuth.
+ * Connects to FastAPI backend at /api/auth/login and /api/auth/register.
  */
 export default function Login() {
-  const [tab, setTab] = useState('signin'); // 'signin' | 'signup'
+  const [tab, setTab] = useState('signin');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
+  // Sign In form state
+  const [signInForm, setSignInForm] = useState({ email: '', password: '' });
+
+  // Sign Up form state
+  const [signUpForm, setSignUpForm] = useState({ name: '', email: '', password: '' });
+
+  // -------------------------------------------------------------------------
+  // Sign In — POST /api/auth/login
+  // -------------------------------------------------------------------------
+  async function handleSignIn(e) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signInForm),
+      });
+      const data = await res.json();
+
+      if (res.status === 429) {
+        toast.error('Too many login attempts. Please wait 15 minutes.');
+        return;
+      }
+      if (!res.ok) {
+        toast.error(data.detail || 'Login failed. Check your credentials.');
+        return;
+      }
+
+      login(data.access_token);
+      toast.success(`Welcome back, ${data.user.name}! 👋`);
+      navigate('/dashboard');
+    } catch {
+      toast.error('Cannot connect to server. Is the backend running?');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Sign Up — POST /api/auth/register
+  // -------------------------------------------------------------------------
+  async function handleSignUp(e) {
+    e.preventDefault();
+    if (signUpForm.password.length < 8) {
+      toast.error('Password must be at least 8 characters.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signUpForm),
+      });
+      const data = await res.json();
+
+      if (res.status === 429) {
+        toast.error('Too many attempts. Please wait 15 minutes.');
+        return;
+      }
+      if (!res.ok) {
+        toast.error(data.detail || 'Registration failed. Try again.');
+        return;
+      }
+
+      login(data.access_token);
+      toast.success(`Account created! Welcome, ${data.user.name}! 🎉`);
+      navigate('/dashboard');
+    } catch {
+      toast.error('Cannot connect to server. Is the backend running?');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Google OAuth — redirect to backend which handles the rest
+  // -------------------------------------------------------------------------
+  function handleGoogleLogin() {
+    window.location.href = `${API_BASE}/auth/google`;
+  }
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
   return (
     <div className="page-wrapper bg-slate-50 dark:bg-slate-950">
       <Navbar />
@@ -62,120 +156,139 @@ export default function Login() {
               </button>
             </div>
 
-            {/* Form body — animates on tab change */}
-            <div className="p-8">
+            <div className="p-6 space-y-5">
 
-              {/* ── SIGN IN FORM ── */}
+              {/* Google OAuth Button */}
+              <button
+                id="auth-google-btn"
+                onClick={handleGoogleLogin}
+                type="button"
+                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors duration-200"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-600" />
+                <span className="text-xs text-slate-400">or</span>
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-600" />
+              </div>
+
+              {/* ---- SIGN IN FORM ---- */}
               {tab === 'signin' && (
-                <div className="space-y-4 animate-tab-in">
-                  <FormField id="signin-email" label="Email address" placeholder="you@example.com" />
-                  <FormField id="signin-password" label="Password" placeholder="••••••••" type="password" />
-
-                  <div className="flex items-center justify-between pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" id="signin-remember" className="w-3.5 h-3.5 rounded accent-green-700" />
-                      <span className="text-xs text-slate-500 dark:text-slate-400">Remember me</span>
+                <form id="signin-form" onSubmit={handleSignIn} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Email
                     </label>
-                    <button className="text-xs text-green-700 dark:text-green-400 hover:underline font-medium">
-                      Forgot password?
-                    </button>
+                    <input
+                      id="signin-email"
+                      type="email"
+                      required
+                      placeholder="you@example.com"
+                      value={signInForm.email}
+                      onChange={e => setSignInForm(p => ({ ...p, email: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500 transition"
+                    />
                   </div>
-
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Password
+                    </label>
+                    <input
+                      id="signin-password"
+                      type="password"
+                      required
+                      placeholder="Your password"
+                      value={signInForm.password}
+                      onChange={e => setSignInForm(p => ({ ...p, password: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500 transition"
+                    />
+                  </div>
                   <button
-                    id="signin-submit-btn"
-                    disabled
-                    className="w-full btn-primary justify-center mt-2 opacity-40 cursor-not-allowed"
+                    id="signin-submit"
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-2.5 rounded-xl bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white text-sm font-semibold transition-colors duration-200"
                   >
-                    Sign In
+                    {loading ? 'Signing in...' : 'Sign In'}
                   </button>
-
-                  <p className="text-center text-xs text-slate-400 dark:text-slate-500 pt-1">
-                    Don't have an account?{' '}
-                    <button
-                      onClick={() => setTab('signup')}
-                      className="text-green-700 dark:text-green-400 font-semibold hover:underline"
-                    >
-                      Sign up free
-                    </button>
-                  </p>
-                </div>
+                </form>
               )}
 
-              {/* ── SIGN UP FORM ── */}
+              {/* ---- SIGN UP FORM ---- */}
               {tab === 'signup' && (
-                <div className="space-y-4 animate-tab-in">
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormField id="signup-firstname" label="First name" placeholder="Aryan" />
-                    <FormField id="signup-lastname" label="Last name" placeholder="Butola" />
+                <form id="signup-form" onSubmit={handleSignUp} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Full Name
+                    </label>
+                    <input
+                      id="signup-name"
+                      type="text"
+                      required
+                      placeholder="Aryan Butola"
+                      value={signUpForm.name}
+                      onChange={e => setSignUpForm(p => ({ ...p, name: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500 transition"
+                    />
                   </div>
-                  <FormField id="signup-email" label="Email address" placeholder="you@example.com" />
-                  <FormField id="signup-password" label="Password" placeholder="Min. 8 characters" type="password" />
-                  <FormField id="signup-confirm" label="Confirm password" placeholder="Re-enter password" type="password" />
-
-                  <label className="flex items-start gap-2.5 cursor-pointer pt-1">
-                    <input type="checkbox" id="signup-terms" className="w-3.5 h-3.5 mt-0.5 rounded accent-green-700 flex-shrink-0" />
-                    <span className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      I agree to the{' '}
-                      <button className="text-green-700 dark:text-green-400 font-semibold hover:underline">Terms of Service</button>
-                      {' '}and{' '}
-                      <button className="text-green-700 dark:text-green-400 font-semibold hover:underline">Privacy Policy</button>
-                    </span>
-                  </label>
-
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Email
+                    </label>
+                    <input
+                      id="signup-email"
+                      type="email"
+                      required
+                      placeholder="you@example.com"
+                      value={signUpForm.email}
+                      onChange={e => setSignUpForm(p => ({ ...p, email: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Password <span className="text-slate-400 font-normal">(min 8 characters)</span>
+                    </label>
+                    <input
+                      id="signup-password"
+                      type="password"
+                      required
+                      placeholder="Create a strong password"
+                      value={signUpForm.password}
+                      onChange={e => setSignUpForm(p => ({ ...p, password: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-600 dark:focus:ring-green-500 transition"
+                    />
+                  </div>
                   <button
-                    id="signup-submit-btn"
-                    disabled
-                    className="w-full btn-primary justify-center mt-2 opacity-40 cursor-not-allowed"
+                    id="signup-submit"
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-2.5 rounded-xl bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white text-sm font-semibold transition-colors duration-200"
                   >
-                    Create Account
+                    {loading ? 'Creating account...' : 'Create Account'}
                   </button>
-
-                  <p className="text-center text-xs text-slate-400 dark:text-slate-500 pt-1">
-                    Already have an account?{' '}
-                    <button
-                      onClick={() => setTab('signin')}
-                      className="text-green-700 dark:text-green-400 font-semibold hover:underline"
-                    >
-                      Sign in
-                    </button>
-                  </p>
-                </div>
+                </form>
               )}
 
             </div>
           </div>
 
-          {/* Footer note */}
-          <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-6">
-            Authentication is disabled — backend integration coming in a future week.
+          <p className="text-center text-xs text-slate-400 mt-6">
+            Your reviews are secure and private. We never share your data.
           </p>
         </div>
       </main>
 
       <Footer />
-    </div>
-  );
-}
-
-/**
- * Internal FormField sub-component for clean form rendering.
- * @param {string} id - Input element id
- * @param {string} label - Field label text
- * @param {string} placeholder - Placeholder text
- * @param {string} [type='text'] - Input type
- */
-function FormField({ id, label, placeholder, type = 'text' }) {
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-slate-600 dark:text-slate-300 text-xs font-medium mb-1.5"
-      >
-        {label}
-      </label>
-      <div className="w-full h-10 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg flex items-center px-3">
-        <span className="text-slate-400 dark:text-slate-500 text-sm">{placeholder}</span>
-      </div>
     </div>
   );
 }
