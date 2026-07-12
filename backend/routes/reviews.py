@@ -12,13 +12,14 @@ Endpoints:
   GET    /api/stats                — get review statistics
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from bson import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime
 
 from database import get_reviews_collection
 from models.review import ReviewCreate, ReviewUpdate, ReviewResponse
+from auth.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -119,7 +120,7 @@ async def get_review(review_id: str):
 # POST /api/reviews — create a new review
 # ---------------------------------------------------------------------------
 @router.post("/reviews", response_model=ReviewResponse, status_code=201)
-async def create_review(payload: ReviewCreate):
+async def create_review(payload: ReviewCreate, current_user: dict = Depends(get_current_user)):
     """Submit a new guest review. Sentiment and themes are auto-assigned."""
     collection = get_reviews_collection()
     new_review = {
@@ -140,7 +141,7 @@ async def create_review(payload: ReviewCreate):
 # PUT /api/reviews/{id} — update a review
 # ---------------------------------------------------------------------------
 @router.put("/reviews/{review_id}", response_model=ReviewResponse, status_code=200)
-async def update_review(review_id: str, payload: ReviewUpdate):
+async def update_review(review_id: str, payload: ReviewUpdate, current_user: dict = Depends(get_current_user)):
     """Update an existing review. Returns 404 if not found."""
     collection = get_reviews_collection()
     obj_id = _parse_object_id(review_id)
@@ -175,7 +176,7 @@ async def update_review(review_id: str, payload: ReviewUpdate):
 # DELETE /api/reviews/{id} — delete a review
 # ---------------------------------------------------------------------------
 @router.delete("/reviews/{review_id}", status_code=204)
-async def delete_review(review_id: str):
+async def delete_review(review_id: str, current_user: dict = Depends(get_current_user)):
     """Delete a review by ID. Returns 204 on success, 404 if not found."""
     collection = get_reviews_collection()
     obj_id = _parse_object_id(review_id)
