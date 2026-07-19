@@ -23,6 +23,7 @@ load_dotenv()
 from database import connect_to_mongo, close_mongo_connection
 from routes.reviews import router as reviews_router
 from routes.auth import router as auth_router
+from routes.ai import router as ai_router
 
 PORT = int(os.getenv("PORT", 8000))
 
@@ -99,3 +100,4 @@ async def root():
 # ---------------------------------------------------------------------------
 app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
+app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
