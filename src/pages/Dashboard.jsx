@@ -15,6 +15,9 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  // AI analysis state
+  const [aiResults, setAiResults] = useState({});    // { [reviewId]: result }
+  const [aiLoading, setAiLoading] = useState(new Set()); // set of reviewIds being analysed
 
   // Form state
   const [form, setForm] = useState({
@@ -118,6 +121,47 @@ export default function Dashboard() {
       fetchStats();
     } catch {
       toast.error('Could not delete review.');
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // AI Analyse a review via POST /api/ai/analyze (requires JWT)
+  // -----------------------------------------------------------------------
+  async function handleAIAnalyse(review) {
+    setAiLoading(prev => new Set(prev).add(review.id));
+    try {
+      const res = await fetch(`${API_BASE}/ai/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          review_text: review.review_text,
+          guest_name: review.guest_name,
+          property: review.property,
+          rating: review.rating,
+        }),
+      });
+      if (res.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout(); navigate('/login'); return;
+      }
+      if (res.status === 429) {
+        toast.error('AI rate limit reached. Please wait a moment.');
+        return;
+      }
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'AI analysis failed.');
+      }
+      const data = await res.json();
+      setAiResults(prev => ({ ...prev, [review.id]: data }));
+      toast.success('AI analysis complete! ✨');
+    } catch (err) {
+      toast.error(err.message || 'AI service unavailable. Try again.');
+    } finally {
+      setAiLoading(prev => { const s = new Set(prev); s.delete(review.id); return s; });
     }
   }
 
@@ -316,13 +360,105 @@ export default function Dashboard() {
                           </span>
                         ))}
                       </div>
-                      <button
-                        onClick={() => handleDelete(review.id)}
-                        className="text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors ml-2 flex-shrink-0"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* AI Analyse button */}
+                        <button
+                          id={`ai-analyse-btn-${review.id}`}
+                          onClick={() => handleAIAnalyse(review)}
+                          disabled={aiLoading.has(review.id)}
+                          className="text-xs font-medium px-2.5 py-1 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-700 hover:bg-violet-100 dark:hover:bg-violet-900/40 disabled:opacity-50 transition-colors flex items-center gap-1"
+                        >
+                          {aiLoading.has(review.id) ? (
+                            <><Loader size="sm" /> Analysing…</>
+                          ) : '🤖 AI Analyse'}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(review.id)}
+                          className="text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+
+                    {/* AI Result Panel */}
+                    {aiResults[review.id] && (
+                      <div className="mt-4 pt-4 border-t border-violet-100 dark:border-violet-900/30 space-y-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide">✨ AI Analysis</span>
+                          <button
+                            onClick={() => setAiResults(prev => { const n = {...prev}; delete n[review.id]; return n; })}
+                            className="text-xs text-slate-400 hover:text-slate-600 ml-auto"
+                          >✕ Close</button>
+                        </div>
+
+                        {/* Sentiment + Confidence */}
+                        <div className="flex items-center gap-3">
+                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${
+                            aiResults[review.id].ai_sentiment === 'positive' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' :
+                            aiResults[review.id].ai_sentiment === 'negative' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' :
+                            'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
+                          }`}>
+                            {aiResults[review.id].ai_sentiment}
+                          </span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">
+                            {aiResults[review.id].confidence}% confidence
+                          </span>
+                          {/* Confidence bar */}
+                          <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 max-w-24">
+                            <div
+                              className="h-1.5 rounded-full bg-violet-500"
+                              style={{ width: `${aiResults[review.id].confidence}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* AI Themes */}
+                        <div className="flex flex-wrap gap-1">
+                          {aiResults[review.id].ai_themes.map(t => (
+                            <span key={t} className="text-xs bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 px-2 py-0.5 rounded-full capitalize border border-violet-100 dark:border-violet-800">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Summary */}
+                        <p className="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed">
+                          {aiResults[review.id].summary}
+                        </p>
+
+                        {/* Management Response */}
+                        <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-lg p-3">
+                          <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 mb-1">💬 Suggested Response</p>
+                          <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                            {aiResults[review.id].management_response}
+                          </p>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(aiResults[review.id].management_response);
+                              toast.success('Response copied to clipboard!');
+                            }}
+                            className="mt-2 text-xs text-violet-600 dark:text-violet-400 hover:underline"
+                          >
+                            📋 Copy response
+                          </button>
+                        </div>
+
+                        {/* Improvement Suggestions */}
+                        {aiResults[review.id].improvement_suggestions?.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">💡 Improvement Suggestions</p>
+                            <ul className="space-y-1">
+                              {aiResults[review.id].improvement_suggestions.map((s, i) => (
+                                <li key={i} className="text-xs text-slate-500 dark:text-slate-400 flex gap-1.5">
+                                  <span className="text-violet-400">•</span>{s}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))
               )}
