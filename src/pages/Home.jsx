@@ -1,7 +1,11 @@
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Card from '../components/Card';
 import Footer from '../components/Footer';
+
+const API_BASE = 'http://localhost:8000/api';
+
 
 const features = [
   {
@@ -79,6 +83,15 @@ const features = [
 ];
 
 export default function Home() {
+  const [liveStats, setLiveStats] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/stats`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setLiveStats(data); })
+      .catch(() => {}); // never crash the landing page if backend is down
+  }, []);
+
   return (
     <div className="page-wrapper">
       <Navbar />
@@ -86,6 +99,28 @@ export default function Home() {
       <main className="main-content">
         {/* Hero */}
         <Hero />
+
+        {/* Live stats strip */}
+        {liveStats && (
+          <section className="bg-green-700 py-5">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-wrap justify-center sm:justify-around gap-6 text-white text-center">
+                <div>
+                  <p className="text-2xl font-bold">{liveStats.total_reviews}</p>
+                  <p className="text-xs text-green-200 mt-0.5">Reviews Analysed</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{liveStats.positive_percent}%</p>
+                  <p className="text-xs text-green-200 mt-0.5">Positive Sentiment</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold capitalize">{liveStats.top_theme || '—'}</p>
+                  <p className="text-xs text-green-200 mt-0.5">Top Theme</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Features section */}
         <section id="features" className="py-20 bg-white dark:bg-slate-950">
