@@ -67,11 +67,20 @@ app.add_middleware(
 )
 
 # ---------------------------------------------------------------------------
-# CORS — allow requests from the React frontend (http://localhost:5173)
+# CORS — allow requests from local dev AND production frontend
+# FRONTEND_URL is set to the Vercel URL on Render (env var)
 # ---------------------------------------------------------------------------
+_allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+]
+_frontend_url = os.getenv("FRONTEND_URL")
+if _frontend_url and _frontend_url not in _allowed_origins:
+    _allowed_origins.append(_frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:5173")],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

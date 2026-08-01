@@ -31,6 +31,7 @@ router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+BACKEND_URL  = os.getenv("BACKEND_URL",  "http://localhost:8000")
 
 # ---------------------------------------------------------------------------
 # Google OAuth setup using Authlib
@@ -181,7 +182,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 @router.get("/google")
 async def google_login(request: Request):
     """Redirect the user to Google's OAuth consent screen."""
-    redirect_uri = "http://localhost:8000/api/auth/google/callback"
+    redirect_uri = f"{BACKEND_URL}/api/auth/google/callback"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 

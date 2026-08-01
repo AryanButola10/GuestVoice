@@ -4,6 +4,23 @@ AI-powered guest review analysis platform for homestay businesses. Classifies se
 
 ---
 
+## 🌐 Live Deployment
+
+| | URL |
+|-|-----|
+| **Frontend** | https://guestvoice-nine.vercel.app |
+| **Backend API** | https://guestvoice-api.onrender.com |
+| **API Docs** | https://guestvoice-api.onrender.com/docs |
+
+### Known limitations on free tier
+- **Render free tier** spins down after 15 minutes of inactivity — the first request after an idle period takes **30–60 seconds** to wake up. Subsequent requests are fast.
+- **MongoDB Atlas M0** (free tier) has a 512 MB storage limit and shared resources; performance may vary under heavy load.
+- **Google Gemini free tier** has rate limits — the AI analyse feature may return errors if too many requests are made in quick succession.
+
+---
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
