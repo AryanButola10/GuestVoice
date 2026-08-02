@@ -8,7 +8,7 @@ AI-powered guest review analysis platform for homestay businesses. Classifies se
 
 | | URL |
 |-|-----|
-| **Frontend** | https://guestvoice-nine.vercel.app |
+| **Frontend** | https://guest-voice-ten.vercel.app |
 | **Backend API** | https://guestvoice-api.onrender.com |
 | **API Docs** | https://guestvoice-api.onrender.com/docs |
 
